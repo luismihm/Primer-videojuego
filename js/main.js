@@ -1,5 +1,8 @@
 import { Game } from "./game.js";
 
+/**
+ * Inicia el juego cuando la página carga.
+ */
 window.onload = () => {
     const game = new Game();
 

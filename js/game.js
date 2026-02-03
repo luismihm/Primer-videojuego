@@ -2,15 +2,25 @@ import { Player, Coin, Enemy } from "./entities.js";
 import { InputHeader } from "./input.js";
 import { distance, saveGameData, loadGameData } from "./utils.js";
 
-console.log("Iniciando juego")
-
+/**
+ * Estado del juego.
+ * @readonly
+ * @enum {string}
+ */
 const GAME_STATE = {
     MENU: "MENU",
     RUNNING: "RUNNING",
     GAME_OVER: "GAME_OVER"
 };
 
+/**
+ * Clase principal del juego.
+ * Se encarga de controlar el bucle principal, la lógica, colisiones y dibujo.
+ */
 export class Game{
+    /**
+     * Crea una instancia del juego.
+     */
     constructor() {
         this.canvas = document.getElementById("gameCanvas");
         this.ctx = this.canvas.getContext("2d");
@@ -44,6 +54,9 @@ export class Game{
         this.gameLoop(0);
     }
 
+    /**
+     * Ajusta el canvas al tamaño de la ventana.
+     */
     resize() {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
@@ -51,6 +64,9 @@ export class Game{
         this.canvas.height = this.height;
     }
 
+    /**
+     * Inicia o reinicia el juego.
+     */
     startGame() {
         this.state = GAME_STATE.RUNNING;
         this.score = 0;
@@ -63,6 +79,9 @@ export class Game{
         this.enemies = [new Enemy(this)];
     }
 
+    /**
+     * Finaliza el juego y guarda el récord si es necesario.
+     */
     gameOver() {
         this.state = GAME_STATE.GAME_OVER;
         if (this.score > this.record) this.record = this.score;
@@ -74,6 +93,14 @@ export class Game{
         });
     }
 
+    /**
+     * Verifica colisión entre dos objetos usando distancia entre centros.
+     * @param {Object} a - Primer objeto con método getCenter().
+     * @param {Object} b - Segundo objeto con método getCenter().
+     * @param {number} sizeA - Tamaño del primer objeto.
+     * @param {number} sizeB - Tamaño del segundo objeto.
+     * @returns {boolean} True si colisionan.
+     */
     checkCollision(a, b, sizeA, sizeB) {
         const dx = a.getCenter().x - b.getCenter().x;
         const dy = a.getCenter().y - b.getCenter().y;
@@ -81,6 +108,10 @@ export class Game{
         return dist < (sizeA / 2 + sizeB / 2);
     }
 
+    /**
+     * Aumenta la dificultad del juego según la puntuación.
+     * Añade enemigos cada 30 puntos.
+     */
     updateDifficulty() {
         if (this.score % 30 === 0 && this.score !== 0) {
             this.level++;
@@ -89,6 +120,10 @@ export class Game{
         if (this.score > this.record) this.record = this.score;
     }
 
+    /**
+     * Actualiza el estado del juego en cada frame.
+     * @param {number} deltaTime - Tiempo transcurrido desde el último frame.
+     */
     update(deltaTime) {
         if (this.state !== GAME_STATE.RUNNING) return;
 
@@ -117,6 +152,9 @@ export class Game{
         this.uiRecord.textContent = "Récord: " + this.record;
     }
 
+    /**
+     * Dibuja el menú principal.
+     */
     drawMenu() {
         this.ctx.fillStyle = "white";
         this.ctx.font = "40px Arial";
@@ -126,6 +164,9 @@ export class Game{
         this.ctx.fillText("PRESS ENTER TO START", this.width / 2, this.height / 2 + 10);
     }
 
+    /**
+     * Dibuja la pantalla de game over.
+     */
     drawGameOver() {
         this.ctx.fillStyle = "white";
         this.ctx.font = "40px Arial";
@@ -135,8 +176,10 @@ export class Game{
         this.ctx.fillText("PRESS ENTER TO RESTART", this.width / 2, this.height / 2 +10);
     }
 
+    /**
+     * Dibuja todos los elementos del juego según el estado.
+     */
     draw() {
-
         this.ctx.fillStyle = "#1c1b1b";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
@@ -155,13 +198,17 @@ export class Game{
         this.enemies.forEach(enemy => enemy.draw(this.ctx));
     }
 
+    /**
+     * Bucle principal del juego.
+     * @param {number} timestamp - Tiempo actual en milisegundos.
+     */
     gameLoop(timestamp) {
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
 
         this.update(deltaTime);
         
-        try {
+        try {
             this.draw();
         } catch (e) {
             console.error("Error en draw(): " + e);

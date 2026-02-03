@@ -1,4 +1,11 @@
+/**
+ * Maneja la entrada del usuario (teclado).
+ */
 export class InputHeader {
+    /**
+     * Crea una instancia de InputHeader.
+     * Guarda las teclas presionadas en un array.
+     */
     constructor() {
         this.keys = [];
 
